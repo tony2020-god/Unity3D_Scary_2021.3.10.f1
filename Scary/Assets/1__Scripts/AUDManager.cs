@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Networking;
 using System.Collections;
 
 public class AUDManager : MonoBehaviour
@@ -12,13 +13,14 @@ public class AUDManager : MonoBehaviour
     [SerializeField] GameObject playerObj;
 
     [SerializeField, Header("玩家聲音效")] AudioSource PlayerSound;
+
     [SerializeField, Header("人物/物品聲音效")] AudioSource grandmaSound;
     #region 人物/物品聲    
     [SerializeField, Tooltip("奶奶開始向前")] public AudioClip grandma_Starts_Walking;
     [SerializeField, Tooltip("奶奶詭異聲")] public AudioClip grandma_StrangeVoice;
     [SerializeField, Tooltip("扭動身體的音效")] public AudioClip body_Twisting_Sound;
     [SerializeField, Tooltip("模糊不清的人聲音")] public AudioClip muffled_Vocals;
-    [SerializeField,Tooltip("腳步聲")] public AudioClip walking;
+    [SerializeField, Tooltip("腳步聲")] public AudioClip walking;
     [SerializeField, Tooltip("緊張呼吸聲")] public AudioClip strained_Breathing;
     [SerializeField, Tooltip("手電筒開關聲")] public AudioClip flashlight_Switch_Sound;
     [SerializeField, Tooltip("鬼影出現聲")] public AudioClip ghosting_Sound;
@@ -86,13 +88,188 @@ public class AUDManager : MonoBehaviour
     [SerializeField, Tooltip("墜落轉黑畫面聲")] AudioClip falling_To_Black_Screen_Sound;
     #endregion
 
+    #region - 抓取音效區(陶宇測試中) -
+    [SerializeField] string[] strSoundClipName;
+    string soundFolderPath = @"D:\ScarySound\";
+    AudioClip tempClip;
+
+    void Start()
+    {
+        PlaySound(strSoundClipName);
+    }
+
+    void PlaySound(string[] soundFileName)
+    {
+        StartCoroutine(LoadSound(soundFileName));
+    }
+
+    IEnumerator LoadSound(string[] soundFileName)
+    {
+        int iCount = soundFileName.Length;
+        string[] soundFilePaths = new string[iCount];
+        UnityWebRequest[] unityWebRequests = new UnityWebRequest[iCount];
+
+        for (int index = 0; index < iCount; index++)
+        {
+            // 組合路徑 + 檔名
+            soundFilePaths[index] = soundFolderPath + soundFileName[index] + ".wav";
+
+            // UnityWebRequest 抓取音效檔
+            unityWebRequests[index] = UnityWebRequestMultimedia.GetAudioClip(soundFilePaths[index], AudioType.WAV);
+
+            // 送出請求並等待回應
+            yield return unityWebRequests[index].SendWebRequest();
+
+            // 檢查是否有錯誤發生
+            if (unityWebRequests[index].result == UnityWebRequest.Result.Success)
+            {
+                tempClip = DownloadHandlerAudioClip.GetContent(unityWebRequests[index]);
+                Debug.Log(string.Format("抓取音效檔案 : {0} {1} 成功", index, soundFileName[index]));
+
+                // 將讀取到的音效資料設定到 AudioClip 元件
+                SetAudioClip(index, tempClip);
+            }
+            else
+            {
+                Debug.LogError(string.Format("無法讀取音效檔 ： {0} {1} 因為 {2}", index, soundFileName[index], unityWebRequests[index].error));
+            }
+        }
+    }
+
+    void SetAudioClip(int r_index, AudioClip audioClip)
+    {
+        switch (r_index)
+        {
+            case 0:
+                grandma_Starts_Walking = audioClip;
+                break;
+            case 1:
+                grandma_StrangeVoice = audioClip;
+                break;
+            case 2:
+                body_Twisting_Sound = audioClip;
+                break;
+            case 3:
+                muffled_Vocals = audioClip;
+                break;
+            case 4:
+                walking = audioClip;
+                break;
+            case 5:
+                strained_Breathing = audioClip;
+                break;
+            case 6:
+                flashlight_Switch_Sound = audioClip;
+                break;
+            case 7:
+                ghosting_Sound = audioClip;
+                break;
+            case 8:
+                ghost_Sound = audioClip;
+                break;
+            case 9:
+                ghost_Escape = audioClip;
+                break;
+            case 10:
+                ghostIn_The_Door = audioClip;
+                break;
+            case 11:
+                light_Switch_Sound = audioClip;
+                break;
+            case 12:
+                drawer_Opening_Sound = audioClip;
+                break;
+            case 13:
+                getting_Out_Of_Bed = audioClip;
+                break;
+            case 14:
+                tet_Sound_Of_Get_The_Key = audioClip;
+                break;
+            case 15:
+                clock = audioClip;
+                break;
+            case 16:
+                piano = audioClip;
+                break;
+            case 17:
+                filial_Piety_Curtain = audioClip;
+                break;
+            case 18:
+                buddhist_Song_Stop = audioClip;
+                break;
+            case 19:
+                candle_Blowing_Sound = audioClip;
+                break;
+            case 20:
+                door_Unlock_Sound = audioClip;
+                break;
+            case 21:
+                door_Slam = audioClip;
+                break;
+            case 22:
+                door_Opening = audioClip;
+                break;
+            case 23:
+                sound_Of_Something_Falling = audioClip;
+                break;
+            case 24:
+                dripping_Sound = audioClip;
+                break;
+            case 25:
+                ghost_Hand_Catch_Player_Sound = audioClip;
+                break;
+            case 26:
+                falling_Sound = audioClip;
+                break;
+            case 27:
+                black_Screen_After_Fall = audioClip;
+                break;
+            case 28:
+                turn_The_Tap = audioClip;
+                break;
+            case 29:
+                white_Noise = audioClip;
+                break;
+            case 30:
+                menu_Background_Music = audioClip;
+                break;
+            case 31:
+                horror_White_Noise = audioClip;
+                break;
+            case 32:
+                games_Start = audioClip;
+                break;
+            case 33:
+                horror_Start = audioClip;
+                break;
+            case 34:
+                soprano_Violin = audioClip;
+                break;
+            case 35:
+                enter_Scene_Sound = audioClip;
+                break;
+            case 36:
+                ui_Context = audioClip;
+                break;
+            case 37:
+                falling_To_Black_Screen_Sound = audioClip;
+                break;
+            default:
+                break;
+        }
+        Debug.Log(string.Format("設定音效檔案 : {0} 成功", r_index));
+    }
+    #endregion
+
     public const string MUSIC_KEY = "musicVolume";
+
     public const string SFX_KEY = "sfxVolume";
 
-    private void Awake()
+    void Awake()
     {
         mainAudioSource = GetComponent<AudioSource>();
         Transform childTransform = transform.Find("SecondAudioSource");
+
         if (childTransform != null)
         {
             // 使用 GetComponent 方法獲取子物件上的 AudioSource 元件
@@ -109,16 +286,17 @@ public class AUDManager : MonoBehaviour
         }
     }
 
-    private IEnumerator RestoreVolume(float originalVolume)
+    IEnumerator RestoreVolume(float originalVolume)
     {
         yield return new WaitForSeconds(drawer_Opening_Sound.length); // 等待音效播放完畢
 
         mainAudioSource.volume = originalVolume; // 恢復原始音量
     }
+
     public void OpenTheDrawerSFX()
     {
-        float originalVolume = mainAudioSource.volume; 
-        mainAudioSource.volume = originalVolume * 0.5f; 
+        float originalVolume = mainAudioSource.volume;
+        mainAudioSource.volume = originalVolume * 0.5f;
         mainAudioSource.PlayOneShot(drawer_Opening_Sound);
 
         StartCoroutine(RestoreVolume(originalVolume));
